@@ -1,0 +1,2 @@
+result of pre-processed data's features in different params with important points
+k=1,s=0.1,g=50,res=0.37157788944723613
