@@ -132,7 +132,7 @@ def important_point(D,extrema_points,beta,g):
                     # print("x"+str(x)+"y"+str(y)+"x1"+str(x1))
                     if x ==0:
                         x = 1e-6
-                    Z = y/x * x1
+                    Z = y/x * x1 + min(extrema_points[i][1],extrema_points[i+1][1])
                     break
             # start += 1
         # print("Z"+str(Z))
