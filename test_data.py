@@ -1,4 +1,3 @@
-import os
 import numpy as np
 import glob
 from tslearn.neighbors import KNeighborsTimeSeriesClassifier
@@ -23,10 +22,14 @@ import torch
 import torch.nn.functional as F
 from show_data import reduce_by_max_abs,count_non_negative_ones
 from WLOF import compute_feature,extrema_max_list,important_point,WLOF
-from load_data import load_laryngea_520_10, load_laryngea_250_100, load_EGG
+from load_data import load_laryngea_520_10, load_laryngea_250_100, load_EGG, load_EGG_10
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+import os
+import argparse
+import logging
+
 
 def test(data,labels):
     nclass = len(np.unique(labels))
@@ -73,7 +76,7 @@ def test(data,labels):
     # print("最佳参数：", grid_search.best_params_)
     # print("最佳模型准确率：", grid_search.best_score_)
 
-    for fold, (train_index, test_index) in enumerate(skfolds.split(data, lab)):
+    for fold, (train_index, test_index) in enumerate(skfolds.split(pca_data, lab)):
         x_train, x_test = pca_data[train_index], pca_data[test_index]
         y_train, y_test = lab[train_index], lab[test_index]
 
@@ -83,14 +86,14 @@ def test(data,labels):
         # label1 = m.predict(x_test)
 
         #dtw+knn
-        knn_dtw = KNeighborsTimeSeriesClassifier(n_neighbors=3, metric="dtw")
+        knn_dtw = KNeighborsTimeSeriesClassifier(n_neighbors=1, metric="dtw")
         knn_dtw.fit(x_train, y_train)
         label1 = knn_dtw.predict(x_test)
 
         accuracy = accuracy_score(y_test, label1)
         result.append(accuracy)
     res = np.average(result)
-    print(res)
+    # print(res)
     return res
 
 def plot(D,data2,i,k,s,extrema_points, important_points, outfactor):
@@ -140,10 +143,11 @@ if __name__ == '__main__':
     os.makedirs(output_eeg_err, exist_ok=True)
     os.makedirs(output_speech_err, exist_ok=True)
 
-    all_extracted_speech_data=np.loadtxt('data_EEG/data_EEG.txt')
+    # all_extracted_speech_data=np.loadtxt('data_EEG/data_EEG.txt')
     # all_extracted_speech_data = all_extracted_speech_data.reshape(2000,58,1024)
-    labels=np.loadtxt('data_EEG/label_EEG.txt')
-    # print(all_extracted_speech_data.shape)
+    # labels=np.loadtxt('data_EEG/label_EEG.txt')
+    all_extracted_speech_data,labels = load_EGG_10()
+    print(all_extracted_speech_data.shape)
     # print(labels.shape)
 
     all_extracted_speech_data_my_pre = []
@@ -167,9 +171,9 @@ if __name__ == '__main__':
         #     plt.savefig(f"data_EEG/4/downsampled_data/i_{i}.png")
         #     plt.close()
     all_extracted_speech_data = np.array(all_extracted_speech_data_my_pre)
-    scaler = StandardScaler()
-    scalered_data = scaler.fit_transform(all_extracted_speech_data)  # 标准化
-    all_extracted_speech_data = PCA(n_components=200).fit_transform(scalered_data)  # PCA降维
+    # scaler = StandardScaler()
+    # scalered_data = scaler.fit_transform(all_extracted_speech_data)  # 标准化
+    # all_extracted_speech_data = PCA(n_components=200).fit_transform(scalered_data)  # PCA降维
 
     beta = 1 / 2
     # #param1 = [5, 10, 15, 20]
@@ -216,20 +220,21 @@ if __name__ == '__main__':
     #                 print(important_points.shape)
     #                 important_points = important_points.reshape((important_points.shape[1]))
     #                 print(important_points.shape)
-    #                 important_points_save.append(important_points)
+    #                 # important_points_save.append(important_points)
     #                 print(features.shape)
     #                 features=np.array(features)
     #                 # features = features.reshape(1,-1)
     #                 print(features.shape)
-    #                 features_save.append(features)
+    #                 # features_save.append(features)
     #                 # features =features + important_points
     #                 # features = np.concatenate((features,important_points))
     #                 #print(features)
     #                 #print(features.shape)
+    #                 # data.append(important_points)
     #                 data.append(important_points)
-        # data[i,:]=features
-        # print("i"+str(i))
-        # print(len(data))
+    #     data[i,:]=features
+    #     print("i"+str(i))
+    #     print(len(data))
     data = all_extracted_speech_data
     #             data=np.array(data)
                 # print(data.shape)
@@ -239,9 +244,12 @@ if __name__ == '__main__':
                 # np.savetxt(f'important_points_k_{k}_s_{s}.txt', important_points_save)
                 # np.savetxt(f'feature_k_{k}_s_{s}.txt', features_save)
                 # data = np.column_stack((all_extracted_speech_data,data))
-                # print(f'{data.shape}_____{labels.shape}')
-    res = test(data,labels)
+                # # print(f'{data.shape}_____{labels.shape}')
+                # res = test(data,labels)
+    # print(data.shape)
+    # print(labels.shape)
+    res = test(data, labels)
     print(res)
-                # with open("res.txt", "a") as file:
-                #     file.write(f"k={k},s={s},g={g},res={res}\n")
+    #             with open("res.txt", "a") as file:
+    #                 file.write(f"k={k},s={s},g={g},res={res}\n")
 

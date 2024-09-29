@@ -8,7 +8,7 @@ import requests
 from datetime import datetime
 from torch.utils.data import Dataset
 
-from Dataset import load_segment_data, load_UEA_data
+#from Dataset import load_segment_data, load_UEA_data
 
 logging.basicConfig(format='%(asctime)s | %(levelname)s : %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -71,12 +71,12 @@ def Initialization(config):
     return device
 
 
-def Data_Loader(config):
-    if config['data_dir'].split('/')[1] == 'Segmentation':
-        Data = load_segment_data.load(config)  # Load HAR (WISDM V2) and Ford Datasets
-    else:
-        Data = load_UEA_data.load(config)  # Load UEA *.ts Data
-    return Data
+# def Data_Loader(config):
+#     if config['data_dir'].split('/')[1] == 'Segmentation':
+#         Data = load_segment_data.load(config)  # Load HAR (WISDM V2) and Ford Datasets
+#     else:
+#         Data = load_UEA_data.load(config)  # Load UEA *.ts Data
+#     return Data
 
 
 def Data_Verifier(config):
